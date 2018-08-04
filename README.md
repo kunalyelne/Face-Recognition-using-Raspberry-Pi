@@ -40,9 +40,9 @@ A small project which does face detection using OpenCV library on RaspberryPi.
 <a name="procedure"></a>
 ## 3] Procedure :
 **Step 1: Installing OpenCV library**
-I am using a Raspberry Pi V3 updated to the last version of Raspbian (Stretch), so the best way to have OpenCV installed, is to follow the awesome tutorial developed by Adrian Rosebrock: [Raspbian Stretch: Install OpenCV 3 + Python on your Raspberry Pi](https://www.pyimagesearch.com/2017/09/04/raspbian-stretch-install-opencv-3-python-on-your-raspberry-pi/)
+> I am using a Raspberry Pi V3 updated to the last version of Raspbian (Stretch), so the best way to have OpenCV installed, is to follow the awesome tutorial developed by Adrian Rosebrock: [Raspbian Stretch: Install OpenCV 3 + Python on your Raspberry Pi](https://www.pyimagesearch.com/2017/09/04/raspbian-stretch-install-opencv-3-python-on-your-raspberry-pi/)
 
-Once you finished the tutorial, you should have an OpenCV virtual environment ready to run our experiments on your Pi.
+> Once you finished the tutorial, you should have an OpenCV virtual environment ready to run our experiments on your Pi.
 Let's go to our virtual environment and confirm that OpenCV 3 is correctly installed.
 
 Run the command `source` each time you open up a new terminal to ensure your system variables have been set up correctly.  
@@ -66,11 +66,11 @@ You can also check the OpenCV version installed:
 `cv2.__version__`
 
 **Step 2: Testing Camera**
-Once you have OpenCV installed in your Raspberry Pi, let's test to confirm that your camera is working properly.
-
+> Once you have OpenCV installed in your Raspberry Pi, let's test to confirm that your camera is working properly.
 I am assuming that you have a PiCam already installed on your Raspberry Pi.
 
-You must have the camera enabled when you ran through Adrian's tutorial, otherwise, the drivers will not be installed correctly.
+> You must have the camera enabled when you ran through Adrian's tutorial, otherwise, the drivers will not be installed correctly.
+
 In case you get an error like: OpenCV Error: Assertion failed , you can try solve the issue, using the command:  
 `sudo modprobe bcm2835-v4l2`
 
@@ -103,13 +103,13 @@ Some may found issues when trying to open the camera ( "Assertion failed" error 
 `sudo modprobe bcm2835-v4l2`
 
 **Step 3: Face Detection**
-The most basic task on Face Recognition is of course, "Face Detecting". Before anything, you must "capture" a face in order to recognize it, when compared with a new face captured on future.
+> The most basic task on Face Recognition is of course, "Face Detecting". Before anything, you must "capture" a face in order to recognize it, when compared with a new face captured on future.
 
-The most common way to detect a face (or any objects), is using the "Haar Cascade classifier"
+> The most common way to detect a face (or any objects), is using the "Haar Cascade classifier"
 
-Object Detection using Haar feature-based cascade classifiers is an effective object detection method proposed by Paul Viola and Michael Jones in their paper, "Rapid Object Detection using a Boosted Cascade of Simple Features" in 2001. It is a machine learning based approach where a cascade function is trained from a lot of positive and negative images. It is then used to detect objects in other images.
+> Object Detection using Haar feature-based cascade classifiers is an effective object detection method proposed by Paul Viola and Michael Jones in their paper, "Rapid Object Detection using a Boosted Cascade of Simple Features" in 2001. It is a machine learning based approach where a cascade function is trained from a lot of positive and negative images. It is then used to detect objects in other images.
 
-Here we will work with face detection. Initially, the algorithm needs a lot of positive images (images of faces) and negative images (images without faces) to train the classifier. Then we need to extract features from it. The good news is that OpenCV comes with a trainer as well as a detector. If you want to train your own classifier for any object like car, planes etc. you can use OpenCV to create one. Its full details are given here: [Cascade Classifier Training.](https://docs.opencv.org/3.3.0/dc/d88/tutorial_traincascade.html)
+> Here we will work with face detection. Initially, the algorithm needs a lot of positive images (images of faces) and negative images (images without faces) to train the classifier. Then we need to extract features from it. The good news is that OpenCV comes with a trainer as well as a detector. If you want to train your own classifier for any object like car, planes etc. you can use OpenCV to create one. Its full details are given here: [Cascade Classifier Training.](https://docs.opencv.org/3.3.0/dc/d88/tutorial_traincascade.html)
 
 Enough theory, let's create a face detector with OpenCV!
 
@@ -179,9 +179,9 @@ If faces are found, it returns the positions of detected faces as a rectangle wi
 Now, run the above python Script on your python environment, using the Raspberry Pi Terminal:  
 `python FaceDetection.py`
 
-> After executing the above code you will be able to see a window popping which includes your face.
+After executing the above code you will be able to see a window popping which includes your face.
 
-> You can also include classifiers for "eyes detection" or even "smile detection". On those cases, you will include the classifier function and rectangle draw inside the face loop, because would be no sense to detect an eye or a smile outside of a face.
+You can also include classifiers for "eyes detection" or even "smile detection". On those cases, you will include the classifier function and rectangle draw inside the face loop, because would be no sense to detect an eye or a smile outside of a face.
 
 > [* .FaceEyeDetection.py](FaceEyeDetection.py)
 > [* .FaceSmileDetection.py](FaceSmileDetection.py)
@@ -190,12 +190,12 @@ Now, run the above python Script on your python environment, using the Raspberry
 **Step 4: Data Gathering**
 > Let's start the first phase of our project. What we will do here, is starting from Face Detecting, we will simply create a dataset, where we will store for each id, a group of photos in gray with the portion that was used for face detecting.
 
-> First, create a directory where you develop your project, for example, FaceRecognition:  
+First, create a directory where you develop your project, for example, FaceRecognition:  
 `mkdir FaceRecognition`
 
-> In this directory, besides the 3 python scripts that we will create for our project, we must have saved on it the Facial Classifier. You can download it from above: [haarcascade_frontalface_default.xml](haarcascade_frontalface_default.xml)
+In this directory, besides the 3 python scripts that we will create for our project, we must have saved on it the Facial Classifier. You can download it from above: [haarcascade_frontalface_default.xml](haarcascade_frontalface_default.xml)
 
-> Next, create a subdirectory where we will store our facial samples and name it "dataset":  
+Next, create a subdirectory where we will store our facial samples and name it "dataset":  
 `mkdir dataset`
 
 > Download [01_face_dataset.py](01_face_dataset.py)
@@ -249,10 +249,10 @@ In code, you guys can see the there's a `count` variable which counts no. of ima
 **Step 6: Trainer**
 > On this second phase, we must take all user data from our dataset and "trainer" the OpenCV Recognizer. This is done directly by a specific OpenCV function. The result will be a `.yml` file that will be saved on a "trainer/" directory.
 
-> So, let's create trainer directory first:  
+So, let's create trainer directory first:  
 `mkdir trainer`
 
-> Download [02_face_training.py](02_face_training.py)  
+Download [02_face_training.py](02_face_training.py)  
 ```python
 import cv2
 import numpy as np
@@ -286,21 +286,21 @@ recognizer.write('/home/pi/FaceRecognition/trainer/trainer.yml')
 # Print the numer of faces trained and end program
 print("\n [INFO] {0} faces trained. Exiting Program".format(len(np.unique(ids))))
 ```
-> Confirm if you have the PIL library installed on your Raspberry Pi. If not, run the below command in Terminal:  
+Confirm if you have the PIL library installed on your Raspberry Pi. If not, run the below command in Terminal:  
 `pip install pillow`
 
-> We will use as a recognizer, the LBPH (LOCAL BINARY PATTERNS HISTOGRAMS) Face Recognizer, included in OpenCV package. This can be done by following line:  
+We will use as a recognizer, the LBPH (LOCAL BINARY PATTERNS HISTOGRAMS) Face Recognizer, included in OpenCV package. This can be done by following line:  
 `recognizer = cv2.face.LBPHFaceRecognizer_create()`
 
-> The function "getImagesAndLabels(path)", will take all photos on directory: "dataset/", returning 2 arrays: "Ids" and "faces". With those arrays as input, we will "train our recognizer":  
+The function "getImagesAndLabels(path)", will take all photos on directory: "dataset/", returning 2 arrays: "Ids" and "faces". With those arrays as input, we will "train our recognizer":  
 `recognizer.train(faces, ids)`
 
-> As a result, a file named "trainer.yml" will be saved in the trainer directory that was previously created by us.
+As a result, a file named "trainer.yml" will be saved in the trainer directory that was previously created by us.
 _Note: Make sure that whenever you collect dataset i.e run program 1, you must run program 2 as well to train Rpi._
 **Step 6: Recognizer**
 > Now, we reached the final phase of our project. Here, we will capture a fresh face on our camera and if this person had his face captured and trained before, our recognizer will make a "prediction" returning its id and an index, shown how confident the recognizer is with this match.
 
-> Download [03_face_recognition.py](03_face_recognition.py)  
+ Download [03_face_recognition.py](03_face_recognition.py)  
 ```python
 import cv2
 import numpy as np
@@ -382,7 +382,7 @@ The `recognizer.predict ()`, will take as a parameter a captured portion of the 
 **Below is the final result image, you too should get similar output**
 
 <div style="align:center">
-  <img src ="/images/result.png"/>
+  <img src ="/images/result.jpg"/>
 </div>
 
 ## Conclusion:
