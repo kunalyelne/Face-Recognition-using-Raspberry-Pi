@@ -392,6 +392,6 @@ For more projects, follow me on github [Kunal Yelne](https://github.com/kunalyel
 Thankyou :heart:
 
 ## Credits
-[_Kunal Yelne_](@kunalyelne)  
+[Kunal Yelne](@kunalyelne)  
 3rd Year,CSE Department.  
 [Indian Institute of Information Technology Nagpur.](https://github.com/iiit-nagpur)
