@@ -113,7 +113,7 @@ Here we will work with face detection. Initially, the algorithm needs a lot of p
 
 Enough theory, let's create a face detector with OpenCV!
 
-Download the file: [faceDetection.py](faceDetection.py)
+Download the file: [FaceDetection.py](FaceDetection.py)
 
 ```python
 import numpy as np
@@ -175,3 +175,223 @@ for (x,y,w,h) in faces:
     roi_color = img[y:y+h, x:x+w]
 ```
 If faces are found, it returns the positions of detected faces as a rectangle with the left up corner (x,y) and having "w" as its Width and "h" as its Height ==> (x,y,w,h).
+
+Now, run the above python Script on your python environment, using the Raspberry Pi Terminal:  
+`python FaceDetection.py`
+
+> After executing the above code you will be able to see a window popping which includes your face.
+
+> You can also include classifiers for "eyes detection" or even "smile detection". On those cases, you will include the classifier function and rectangle draw inside the face loop, because would be no sense to detect an eye or a smile outside of a face.
+
+> [* .FaceEyeDetection.py](FaceEyeDetection.py)
+> [* .FaceSmileDetection.py](FaceSmileDetection.py)
+> [* .FaceEyeSmileDetection.py](FaceEyeSmileDetection.py)
+
+**Step 4: Data Gathering**
+> Let's start the first phase of our project. What we will do here, is starting from Face Detecting, we will simply create a dataset, where we will store for each id, a group of photos in gray with the portion that was used for face detecting.
+
+> First, create a directory where you develop your project, for example, FaceRecognition:  
+`mkdir FaceRecognition`
+
+> In this directory, besides the 3 python scripts that we will create for our project, we must have saved on it the Facial Classifier. You can download it from above: [haarcascade_frontalface_default.xml](haarcascade_frontalface_default.xml)
+
+> Next, create a subdirectory where we will store our facial samples and name it "dataset":  
+`mkdir dataset`
+
+> Download [01_face_dataset.py](01_face_dataset.py)
+
+```python
+import cv2
+import os
+cam = cv2.VideoCapture(0)
+cam.set(3, 640) # set video width
+cam.set(4, 480) # set video height
+face_detector = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+# For each person, enter one numeric face id
+face_id = input('\n Enter user ID end press <Enter> ==>  ')
+print("\n Initializing face capture. Look the camera and wait ...")
+# Initialize individual sampling face count
+count = 0
+while(True):
+    ret, img = cam.read()
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    faces = face_detector.detectMultiScale(gray, 1.3, 5)
+    for (x,y,w,h) in faces:
+        cv2.rectangle(img, (x,y), (x+w,y+h), (255,0,0), 2)
+        count += 1
+        # Save the captured image into the datasets folder
+        cv2.imwrite("dataset/User." + str(face_id) + '.' + str(count) + ".jpg", gray[y:y+h,x:x+w])
+        cv2.imshow('image', img)
+    k = cv2.waitKey(100) & 0xff # Press 'ESC' for exiting video
+    if k == 27:
+        break
+    elif count >= 30: # Take 30 face sample and stop video
+         break
+# Do a bit of cleanup
+print("\n [INFO] Exiting Program and cleanup stuff")
+cam.release()
+cv2.destroyAllWindows()
+```
+The code is very similar to the code that we saw for face detection. What we added, was an "input command" to capture a user id, that should be an integer number (1, 2, 3, etc)  
+`face_id = input('\n enter user id end press  ==>  ')`
+
+And for each one of the captured frames, we should save it as a file on a "dataset" directory:
+`cv2.imwrite("dataset/User." + str(face_id) + '.' + str(count) + ".jpg", gray[y:y+h,x:x+w])`  
+
+Note that for saving the above file, you must have imported the library "os". Each file's name will follow the structure:
+`User.face_id.count.jpg`  
+
+For example, for a user with a face_id = 1, the 4th sample file on dataset/ directory will be something like:  
+`User.1.4.jpg`
+
+In code, you guys can see the there's a `count` variable which counts no. of images captured. It is set to `30` , the more you capture the more accuratly system will work.
+
+**Step 6: Trainer**
+> On this second phase, we must take all user data from our dataset and "trainer" the OpenCV Recognizer. This is done directly by a specific OpenCV function. The result will be a `.yml` file that will be saved on a "trainer/" directory.
+
+> So, let's create trainer directory first:  
+`mkdir trainer`
+
+> Download [02_face_training.py](02_face_training.py)  
+```python
+import cv2
+import numpy as np
+from PIL import Image
+import os
+# Path for face image database
+path = 'dataset'
+
+os.chdir("/home/pi/opencv-3.4.1/data/haarcascades")
+recognizer = cv2.face.LBPHFaceRecognizer_create()
+detector = cv2.CascadeClassifier("/home/pi/opencv-3.4.1/data/haarcascades/haarcascade_frontalface_default.xml");
+# function to get the images and label data
+def getImagesAndLabels(path):
+    imagePaths = [os.path.join(path,f) for f in os.listdir(path)]
+    faceSamples=[]
+    ids = []
+    for imagePath in imagePaths:
+        PIL_img = Image.open(imagePath).convert('L') # convert it to grayscale
+        img_numpy = np.array(PIL_img,'uint8')
+        id = int(os.path.split(imagePath)[-1].split(".")[1])
+        faces = detector.detectMultiScale(img_numpy)
+        for (x,y,w,h) in faces:
+            faceSamples.append(img_numpy[y:y+h,x:x+w])
+            ids.append(id)
+    return faceSamples,ids
+print ("\nTraining faces. It will take few seconds. Wait ...")
+faces,ids = getImagesAndLabels(path)
+recognizer.train(faces, np.array(ids))
+# Save the model into trainer/trainer.yml
+recognizer.write('/home/pi/FaceRecognition/trainer/trainer.yml')
+# Print the numer of faces trained and end program
+print("\n [INFO] {0} faces trained. Exiting Program".format(len(np.unique(ids))))
+```
+> Confirm if you have the PIL library installed on your Raspberry Pi. If not, run the below command in Terminal:  
+`pip install pillow`
+
+> We will use as a recognizer, the LBPH (LOCAL BINARY PATTERNS HISTOGRAMS) Face Recognizer, included in OpenCV package. This can be done by following line:  
+`recognizer = cv2.face.LBPHFaceRecognizer_create()`
+
+> The function "getImagesAndLabels(path)", will take all photos on directory: "dataset/", returning 2 arrays: "Ids" and "faces". With those arrays as input, we will "train our recognizer":  
+`recognizer.train(faces, ids)`
+
+> As a result, a file named "trainer.yml" will be saved in the trainer directory that was previously created by us.
+_Note: Make sure that whenever you collect dataset i.e run program 1, you must run program 2 as well to train Rpi._
+**Step 6: Recognizer**
+> Now, we reached the final phase of our project. Here, we will capture a fresh face on our camera and if this person had his face captured and trained before, our recognizer will make a "prediction" returning its id and an index, shown how confident the recognizer is with this match.
+
+> Download [03_face_recognition.py](03_face_recognition.py)  
+```python
+import cv2
+import numpy as np
+import os
+
+os.chdir("/home/pi/opencv-3.4.1/data/haarcascades")
+recognizer = cv2.face.LBPHFaceRecognizer_create()
+recognizer.read('/home/pi/FaceRecognition/trainer/trainer.yml')
+cascadePath = "/home/pi/opencv-3.4.1/data/haarcascades/haarcascade_frontalface_default.xml"
+faceCascade = cv2.CascadeClassifier(cascadePath);
+
+font = cv2.FONT_HERSHEY_SIMPLEX
+
+#iniciate id counter
+id = 0
+
+# names related to ids: example ==> KUNAL: id=1,  etc
+names = ['None', 'Kunal', 'Kaushik', 'Atharv', 'Z', 'W']
+
+# Initialize and start realtime video capture
+cam = cv2.VideoCapture(0)
+cam.set(3, 640) # set video widht
+cam.set(4, 480) # set video height
+
+# Define min window size to be recognized as a face
+minW = 0.1*cam.get(3)
+minH = 0.1*cam.get(4)
+
+while True:
+    ret, img =cam.read()
+    #img = cv2.flip(img, -1) # Flip vertically
+    gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+
+    faces = faceCascade.detectMultiScale(
+        gray,
+        scaleFactor = 1.2,
+        minNeighbors = 5,
+        minSize = (int(minW), int(minH)),
+       )
+
+    for(x,y,w,h) in faces:
+        cv2.rectangle(img, (x,y), (x+w,y+h), (0,255,0), 2)
+        id, confidence = recognizer.predict(gray[y:y+h,x:x+w])
+
+        # Check if confidence is less them 100 ==> "0" is perfect match
+        if (confidence < 100):
+            id = names[id]
+            confidence = "  {0}%".format(round(100 - confidence))
+        else:
+            id = "unknown"
+            confidence = "  {0}%".format(round(100 - confidence))
+
+        cv2.putText(img, str(id), (x+5,y-5), font, 1, (255,255,255), 2)
+        cv2.putText(img, str(confidence), (x+5,y+h-5), font, 1, (255,255,0), 1)
+
+    cv2.imshow('camera',img)
+
+    k = cv2.waitKey(10) & 0xff # Press 'ESC' for exiting video
+    if k == 27:
+        break
+
+# Do a bit of cleanup
+print("\n [INFO] Exiting Program and cleanup stuff")
+cam.release()
+cv2.destroyAllWindows()
+```
+We are including here a new array, so we will display "names", instead of numbered ids:
+
+names = ['None', 'Kunal', 'Kaushik', 'Tushar', 'X', 'Y' , 'Z']
+So, for example: Kunal will be the user with id = 1; Kaushik: id=2, etc.
+
+Next, we will detect a face, same we did before with the haarCascade classifier. Having a detected face we can call the most important function in the above code:  
+`id, confidence = recognizer.predict(gray portion of the face)`
+
+The `recognizer.predict ()`, will take as a parameter a captured portion of the face to be analyzed and will return its probable owner, indicating its id and how much confidence the recognizer is in relation with this match.
+
+>_Note that the confidence index will return **"zero"** if it will be cosidered a perfect match_
+
+**Below is the final result image, you too should get similar output**
+
+<div style="align:center">
+  <img src ="/images/result.png"/>
+</div>
+
+## Conclusion:
+> I hope this project can help others find their way into the exciting world of IoT!
+
+For more projects, follow me on github [Kunal Yelne](https://github.com/kunalyelne):+1:  
+Thankyou :heart:
+
+## Credits
+[_Kunal Yelne_](@kunalyelne)  
+3rd Year,CSE Department.  
+[Indian Institute of Information Technology Nagpur.](https://github.com/iiit-nagpur)
