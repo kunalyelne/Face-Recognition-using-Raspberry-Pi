@@ -295,8 +295,9 @@ We will use as a recognizer, the LBPH (LOCAL BINARY PATTERNS HISTOGRAMS) Face Re
 The function "getImagesAndLabels(path)", will take all photos on directory: "dataset/", returning 2 arrays: "Ids" and "faces". With those arrays as input, we will "train our recognizer":  
 `recognizer.train(faces, ids)`
 
-As a result, a file named "trainer.yml" will be saved in the trainer directory that was previously created by us.
-_Note: Make sure that whenever you collect dataset i.e run program 1, you must run program 2 as well to train Rpi._
+As a result, a file named "trainer.yml" will be saved in the trainer directory that was previously created by us.  
+>_Note: Make sure that whenever you collect dataset i.e run program 1, you must run program 2 as well to train Rpi._  
+
 **Step 6: Recognizer**
 > Now, we reached the final phase of our project. Here, we will capture a fresh face on our camera and if this person had his face captured and trained before, our recognizer will make a "prediction" returning its id and an index, shown how confident the recognizer is with this match.
 
